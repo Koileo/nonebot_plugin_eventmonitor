@@ -36,24 +36,18 @@ class Utils:
     def __init__(self) -> None:
         self.usage = """
             指令1：戳一戳(戳一戳bot获取文案)
-            指令2：群荣誉监测(检测群聊中龙王，群聊之火，快乐源泉的获得并发送提示，当 bot获得群荣誉时有特殊消息)
-            指令3：群文件检测(检测所有人发送群文件并发送提示)
             指令4：群成员减少检测(当有人退群时，发送退群消息；当主人/superuser退群有特殊回复)
             指令5：群成员增加检测(当有人入群时，发送入群欢迎，当bot首次入群会乞讨管理，当主人/superuser入群会有特殊回复)
             指令6：管理员变动检测(当新增管理员或取消管理员时发送消息提示，当bot自身被上/下管理时有特殊回复)
-            指令7：运气王检测(检测抢红包检测后的运气王并发送提示消息)
             指令8：检查event更新|checkeventupdate
             指令9：event配置|eventstatus
             指令10：开启|关闭文案
             指令11：event指令帮助|eventhelp"""
         self.path = {
             'chuo': ['戳一戳'],
-            'honor': ['群荣誉检测'],
-            'files': ['群文件检测'],
             'del_user': ['群成员减少检测'],
             'add_user': ['群成员增加检测'],
             'admin': ['管理员变动检测'],
-            'red_package': ['运气王检测'],
         }
         self.g_temp = {}
         self.chuo_CD_dir = {}
@@ -158,20 +152,6 @@ class Utils:
         return g_temp[gid]['chuo']
 
     @staticmethod
-    async def check_honor(g_temp: dict, gid: str) -> bool:
-        """检查群荣誉是否允许"""
-        if gid in g_temp and not g_temp[gid]['honor']:
-            return False
-        return g_temp[gid]['honor']
-
-    @staticmethod
-    async def check_file(g_temp: dict, gid: str) -> bool:
-        """检查群文件是否允许"""
-        if gid in g_temp and not g_temp[gid]['files']:
-            return False
-        return g_temp[gid]['files']
-
-    @staticmethod
     async def check_del_user(g_temp: dict, gid: str) -> bool:
         """检查群成员减少是否允许"""
         if gid in g_temp and not g_temp[gid]['del_user']:
@@ -191,13 +171,6 @@ class Utils:
         if gid in g_temp and not g_temp[gid]['admin']:
             return False
         return g_temp[gid]['admin']
-
-    @staticmethod
-    async def check_red_package(g_temp: dict, gid: str) -> bool:
-        """检查运气王是否允许"""
-        if gid in g_temp and not g_temp[gid]['red_package']:
-            return False
-        return g_temp[gid]['red_package']
 
     @staticmethod
     async def check_txt_to_img(enable_check: bool) -> bool:  # noqa: FBT001
@@ -233,16 +206,6 @@ class Utils:
         return isinstance(event, PokeNotifyEvent) and event.is_tome()
 
     @staticmethod
-    async def rongyu(event: Event) -> bool:
-        """获取群荣誉变更"""
-        return isinstance(event, HonorNotifyEvent)
-
-    @staticmethod
-    async def checker(event: Event) -> bool:
-        """获取文件上传"""
-        return isinstance(event, GroupUploadNoticeEvent)
-
-    @staticmethod
     async def del_user(event: Event) -> bool:
         """获取群成员减少"""
         return isinstance(event, GroupDecreaseNoticeEvent)
@@ -257,10 +220,6 @@ class Utils:
         """获取管理员变动"""
         return isinstance(event, GroupAdminNoticeEvent)
 
-    @staticmethod
-    async def red_packet(event: Event) -> bool:
-        """获取红包运气王"""
-        return isinstance(event, LuckyKingNotifyEvent)
 
 
 utils = Utils()

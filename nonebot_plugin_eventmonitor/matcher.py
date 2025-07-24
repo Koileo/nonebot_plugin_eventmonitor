@@ -66,105 +66,11 @@ class Matcher:
             )
         return rely
 
-    async def monitor_rongyu(self, honor_type: str, user_id: int, bot_qq: int) -> str:
-        """发送群荣誉变化消息"""
-        # 根据honor_type选择不同的消息
-        if honor_type == 'emotion':
-            # 如果用户ID等于机器人的QQ号，不作任何操作
-            if user_id == bot_qq:
-                rely = '你们又不行了，本喵喜提快乐源泉🤣~'
-            # 如果用户ID在superusers列表中，返回特定消息
-            elif user_id in config_data.superusers:
-                rely = '恭喜主人荣获快乐源泉🤣标识喵~'
-            # 否则，返回通用消息
-            else:
-                rely = '恭喜你荣获快乐源泉🤣标识喵~'
-
-        elif honor_type == 'performer':
-            # 如果用户ID等于机器人的QQ号，不作任何操作
-            if user_id == bot_qq:
-                rely = '你们又不行了，本喵喜提群聊之火🔥~'
-            # 如果用户ID在superusers列表中，返回特定消息
-            elif user_id in config_data.superusers:
-                rely = '恭喜主人荣获群聊之火🔥标识喵~'
-            # 否则，返回通用消息
-            else:
-                rely = '恭喜你荣获群聊之火🔥标识喵~'
-
-        elif honor_type == 'talkative':
-            # 如果用户ID等于机器人的QQ号，返回特定消息
-            if user_id == bot_qq:
-                rely = '你们又不行了，本喵喜提龙王🐲~'
-            # 如果用户ID在superusers列表中，返回特定消息
-            elif user_id in config_data.superusers:
-                rely = '恭喜主人荣获龙王🐲标识喵~'
-            # 否则，返回通用消息
-            else:
-                rely: str = '恭喜你荣获龙王🐲标识喵~'
-
-        return rely
-
-    async def rad_package_change(self, target_id: int, bot_qq: int) -> str:
-        """发送运气王变化消息"""
-        if target_id == bot_qq:
-            rely = '你们又不行了，本喵喜提运气王🧧'
-        elif target_id in config_data.superusers:
-            rely = '恭喜主人获得本次红包的运气王🧧'
-        else:
-            rely: str = f'恭喜{target_id}获得本次红包的运气王🧧'
-
-        return rely
-
     async def chuo_send_msg(self) -> str:
         """发送戳一戳消息"""
         rand_num: int = secrets.randbelow(len(chuo_msg))
         return chuo_msg[rand_num]
 
-    async def upload_files(self, user_id: int) -> Message:
-        """发送上传群文件消息"""
-        return (
-            MessageSegment.image(f'https://q4.qlogo.cn/headimg_dl?dst_uin={user_id}&spec=640')
-            + '\n上传了新文件，感谢你一直为群里做贡献喵~'
-            + MessageSegment.face(175)
-        )
-
-    async def update_msg(self, current: str, latest: str, data: dict) -> str:
-        if current == latest:
-            message: str = f'eventmonitor插件已是最新版本:{utils.current_version}'
-        elif current < latest:
-            message_template: str = (
-                '✨检测到插件更新✨\n'
-                '插件名称：nonebot-plugin-eventmonitor\n'
-                f'更新日期：{data["published_at"]}\n'
-                f'版本变化：{utils.current_version} -> {data["tag_name"]}\n'
-                f'更新日志：\n{data["body"]}'
-            )
-            message: str = message_template
-        else:
-            message: str = (
-                '🚨检测插件更新时发现错误🚨\n'
-                f'版本变化：{utils.current_version} -> {data["tag_name"]}\n'
-                '请检查更新日志并核查本地版本号'
-            )
-        return message
-
-    async def job_update_msg(self, current: str, latest: str, data: dict) -> str:
-        if current < latest:
-            message_template: str = (
-                '✨检测到插件更新✨\n'
-                '插件名称：nonebot-plugin-eventmonitor\n'
-                f'更新日期：{data["published_at"]}\n'
-                f'版本变化：{utils.current_version} -> {data["tag_name"]}\n'
-                f'更新日志：\n{data["body"]}'
-            )
-            message: str = message_template
-        else:
-            message: str = (
-                '🚨检测插件更新时发现错误🚨\n'
-                f'版本变化：{utils.current_version} -> {data["tag_name"]}\n'
-                '请检查更新日志并核查本地版本号'
-            )
-        return message
 
 
 message = Matcher()

@@ -51,36 +51,6 @@ class Eventmonitor:
             else:
                 await matcher.finish(rely_msg)
 
-    async def qrongyu(
-        self,
-        matcher: Matcher,
-        event: HonorNotifyEvent,
-        bot: Bot,
-    ) -> None:
-        """群荣誉事件"""
-        if not (await utils.check_honor(utils.g_temp, str(event.group_id))):
-            return
-        bot_qq = int(bot.self_id)
-        rely_msg: str = await message.monitor_rongyu(event.honor_type, event.user_id, bot_qq)
-        if await utils.check_txt_to_img(config_data.event_check_txt_img):
-            await matcher.send(MessageSegment.image(await txt_to_img.txt_to_img(str(rely_msg))), at_sender=True)
-        else:
-            await matcher.finish(rely_msg)
-
-    async def files(
-        self,
-        matcher: Matcher,
-        event: GroupUploadNoticeEvent,
-    ) -> None:
-        """群文件事件"""
-        if not (await utils.check_file(utils.g_temp, str(event.group_id))):
-            return
-        rely_msg: Message = await message.upload_files(event.user_id)
-        if await utils.check_txt_to_img(config_data.event_check_txt_img):
-            await matcher.send(MessageSegment.image(await txt_to_img.txt_to_img(str(rely_msg))), at_sender=True)
-        else:
-            await matcher.finish(rely_msg)
-
     async def del_user(
         self,
         matcher: Matcher,
@@ -136,21 +106,6 @@ class Eventmonitor:
         else:
             await matcher.finish(rely_msg)
 
-    async def hongbao(
-        self,
-        matcher: Matcher,
-        event: LuckyKingNotifyEvent,
-        bot: Bot,
-    ) -> None:
-        """红包运气王事件"""
-        if not (await utils.check_red_package(utils.g_temp, str(event.group_id))):
-            return
-        bot_qq = int(bot.self_id)
-        rely_msg = await message.rad_package_change(event.target_id, bot_qq)
-        if await utils.check_txt_to_img(config_data.event_check_txt_img):
-            await matcher.send(MessageSegment.image(await txt_to_img.txt_to_img(rely_msg)), at_sender=True)
-        else:
-            await matcher.finish(rely_msg)
 
     async def switch(
         self,
@@ -202,89 +157,6 @@ class Eventmonitor:
         else:
             await matcher.finish(rely_msg)
 
-    async def check_plugin(self) -> str | None:
-        """检测插件更新"""
-        try:
-            await self.check_plugin_update()
-        except (HTTPStatusError, ConnectError, RequestError, TimeoutError, json.JSONDecodeError) as e:
-            logger.exception('检查更新时发生未处理的异常')
-            return f'检查更新失败: {e}'
-
-    @staticmethod
-    async def get_latest_version_data() -> dict:
-        """获取最新版本数据"""
-        testtime = 2
-        async with AsyncClient(timeout=10) as client:
-            for attempt in range(3):
-                try:
-                    response = await client.get(utils.release_url)
-                    return response.json()
-                except HTTPStatusError as e:
-                    logger.warning(f'HTTP 错误 [尝试 {attempt + 1}/3]: {e.response.status_code}')
-                    if attempt == testtime:
-                        raise
-                except (ConnectError, TimeoutError, RequestError) as e:
-                    logger.warning(f'网络错误 [尝试 {attempt + 1}/3]: {e}')
-                    if attempt == testtime:
-                        raise
-                except json.JSONDecodeError as e:
-                    logger.error(f'JSON 解析失败: {e.doc}')
-                    raise
-                await asyncio.sleep(2**attempt)
-        return {}
-
-    async def check_plugin_update(self) -> bool:
-        """检查更新核心逻辑"""
-        if not config_data.event_check_plugin_update:
-            return False
-        try:
-            data: dict | None = await self.get_latest_version_data()
-            if not data or 'tag_name' not in data:
-                logger.error('获取版本数据无效')
-                return False
-        except (HTTPStatusError, ConnectError, RequestError, TimeoutError, json.JSONDecodeError) as e:
-            logger.error(f'获取最新版本数据失败: {e}')
-            raise
-        current = str(version.parse(utils.current_version.lstrip('v')))
-        latest = str(version.parse(data['tag_name'].lstrip('v')))
-        rely_msg: str = await message.update_msg(current, latest, data)
-        bot = get_bot()
-        if await utils.check_txt_to_img(config_data.event_check_txt_img):
-            await bot.send_private_msg(
-                user_id=int(next(iter(bot.config.superusers))),
-                message=MessageSegment.image(await txt_to_img.txt_to_img(rely_msg)),
-            )
-        else:
-            await bot.send_private_msg(user_id=int(next(iter(bot.config.superusers))), message=Message(rely_msg))
-        return True
-
-    async def job_plugin_update(self) -> bool:
-        """检查更新核心逻辑"""
-        if not config_data.event_check_plugin_update:
-            return False
-        try:
-            data: dict | None = await self.get_latest_version_data()
-            if not data or 'tag_name' not in data:
-                logger.error('获取版本数据无效')
-                return False
-        except (HTTPStatusError, ConnectError, RequestError, TimeoutError, json.JSONDecodeError) as e:
-            logger.error(f'获取最新版本数据失败: {e}')
-            raise
-        current = str(version.parse(utils.current_version.lstrip('v')))
-        latest = str(version.parse(data['tag_name'].lstrip('v')))
-        if current == latest:
-            pass
-        else:
-            rely_msg: str = await message.job_update_msg(current, latest, data)
-            bot = get_bot()
-            if await utils.check_txt_to_img(config_data.event_check_txt_img):
-                await bot.send_private_msg(
-                    user_id=int(next(iter(bot.config.superusers))),
-                    message=MessageSegment.image(await txt_to_img.txt_to_img(rely_msg)),
-                )
-            else:
-                await bot.send_private_msg(user_id=int(next(iter(bot.config.superusers))), message=Message(rely_msg))
-        return True
 
 
 eventmonitor = Eventmonitor()

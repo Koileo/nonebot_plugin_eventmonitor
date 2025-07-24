@@ -18,11 +18,6 @@ from .handle import eventmonitor
 driver = get_driver()
 
 
-@scheduler.scheduled_job('cron', hour=8, misfire_grace_time=600)
-async def plugin_update() -> None:
-    await eventmonitor.job_plugin_update()
-
-
 @driver.on_bot_connect
 async def _() -> None:
     await utils.init()
@@ -35,20 +30,6 @@ chuo = on_notice(
     priority=10,
     block=False,
     handlers=[eventmonitor.chuo],
-)
-# 群荣誉
-qrongyu = on_notice(
-    rule=utils.rongyu,
-    priority=50,
-    block=False,
-    handlers=[eventmonitor.qrongyu],
-)
-# 群文件
-files = on_notice(
-    rule=utils.checker,
-    priority=50,
-    block=False,
-    handlers=[eventmonitor.files],
 )
 # 群员减少
 del_user = on_notice(
@@ -71,13 +52,6 @@ group_admin = on_notice(
     block=False,
     handlers=[eventmonitor.admin_chance],
 )
-# 红包
-red_packet = on_notice(
-    rule=utils.red_packet,
-    priority=50,
-    block=False,
-    handlers=[eventmonitor.hongbao],
-)
 
 on_command(
     '开启',
@@ -97,14 +71,6 @@ on_command(
     handlers=[eventmonitor.state],
 )
 
-on_command(
-    '检查event更新',
-    aliases={'checkeventupdate'},
-    priority=1,
-    permission=SUPERUSER,
-    block=True,
-    handlers=[eventmonitor.check_plugin],
-)
 
 on_command(
     'event帮助',
